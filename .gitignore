@@ -1,0 +1,3 @@
+db/test.db
+db/test.db.sql.gz
+go.sum
