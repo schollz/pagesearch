@@ -14,19 +14,12 @@ func TestBasic(t *testing.T) {
 	fs, err := New("test.db")
 	assert.Nil(t, err)
 
-	err = fs.Save(fs.NewPage("test1", "some text"))
-	assert.Nil(t, err)
-	err = fs.Save(fs.NewPage("test2", "some other thing"))
-	assert.Nil(t, err)
-	err = fs.DumpSQL()
-	assert.Nil(t, err)
-
 	assert.Nil(t,
 		fs.SaveMany([]Page{
-			{"test3", "something another more thing"},
-			{"test4", "and another some thing"},
-			{"test5", "one more  another little thing"},
-			{"test6", "this is another big thing"},
+			{"test3", map[string]string{"url": "hi"}, "something another more thing"},
+			{"test4", map[string]string{"url": "hi"}, "and another some thing"},
+			{"test5", map[string]string{"url": "hi"}, "one more  another little thing"},
+			{"test6", map[string]string{"url": "hi"}, "this is another big thing"},
 		}),
 	)
 

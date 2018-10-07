@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"compress/gzip"
 	"database/sql"
+	"encoding/json"
 	"os"
 	"sync"
 
@@ -20,8 +21,9 @@ type Database struct {
 
 // Page is the basic unit that is saved
 type Page struct {
-	ID   string `json:"id"`
-	Data string `json:"data"`
+	ID       string            `json:"id"`
+	MetaData map[string]string `json:"meta"`
+	Data     string            `json:"data"`
 }
 
 // New will initialize a filesystem by creating DB and calling InitializeDB.
@@ -51,7 +53,18 @@ func New(name string) (fs *Database, err error) {
 // InitializeDB will initialize schema if not already done and if dump is true,
 // will create the an initial DB dump. This is automatically called by New.
 func (fs *Database) InitializeDB(dump bool) (err error) {
-	sqlStmt := `CREATE VIRTUAL TABLE IF NOT EXISTS 
+	sqlStmt := `CREATE TABLE IF NOT EXISTS 
+	fs (
+		id TEXT NOT NULL PRIMARY KEY,
+		meta TEXT
+	);`
+	_, err = fs.DB.Exec(sqlStmt)
+	if err != nil {
+		err = errors.Wrap(err, "creating table")
+		return
+	}
+
+	sqlStmt = `CREATE VIRTUAL TABLE IF NOT EXISTS 
 		fts USING fts4 (id,data);`
 	_, err = fs.DB.Exec(sqlStmt)
 	if err != nil {
@@ -120,7 +133,33 @@ func (fs *Database) Save(f Page) (err error) {
 	if err != nil {
 		return errors.Wrap(err, "exec Save")
 	}
-	defer stmt.Close()
+	stmt.Close()
+
+	stmt, err = tx.Prepare(`
+	INSERT OR IGNORE INTO
+		fs
+	(
+		id,
+		meta
+	) 
+		values 	
+	(
+		?, 
+		?
+	)`)
+	if err != nil {
+		return errors.Wrap(err, "stmt Save")
+	}
+	bMeta, _ := json.Marshal(f.MetaData)
+	_, err = stmt.Exec(
+		f.ID,
+		string(bMeta),
+	)
+	if err != nil {
+		return errors.Wrap(err, "exec Save")
+	}
+	stmt.Close()
+
 	err = tx.Commit()
 	if err != nil {
 		return errors.Wrap(err, "commit Save")
