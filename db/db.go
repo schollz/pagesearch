@@ -129,6 +129,57 @@ func (fs *Database) Save(f Page) (err error) {
 	return
 }
 
+// Save many
+func (fs *Database) SaveMany(pages []Page) (err error) {
+	fs.Lock()
+	defer fs.Unlock()
+
+	tx, err := fs.DB.Begin()
+	if err != nil {
+		return errors.Wrap(err, "begin Save")
+	}
+
+	for _, f := range pages {
+		err = func() error {
+			stmt, err := tx.Prepare(`
+	INSERT OR IGNORE INTO
+		fts
+	(
+		id,
+		data
+	) 
+		values 	
+	(
+		?, 
+		?
+	)`)
+			defer stmt.Close()
+			if err != nil {
+				return errors.Wrap(err, "stmt Save")
+			}
+
+			_, err = stmt.Exec(
+				f.ID,
+				f.Data,
+			)
+			if err != nil {
+				return errors.Wrap(err, "exec Save")
+			}
+			return nil
+		}()
+		if err != nil {
+			return
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return errors.Wrap(err, "commit Save")
+	}
+
+	return
+}
+
 // Close will make sure that the lock file is closed
 func (fs *Database) Close() (err error) {
 	return fs.DB.Close()
