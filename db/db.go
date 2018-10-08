@@ -209,6 +209,37 @@ func (fs *Database) SaveMany(pages []Page) (err error) {
 		if err != nil {
 			return
 		}
+
+		err = func() error {
+			stmt, err := tx.Prepare(`
+	INSERT OR IGNORE INTO
+		fs
+	(
+		id,
+		meta
+	) 
+		values 	
+	(
+		?, 
+		?
+	)`)
+			defer stmt.Close()
+			if err != nil {
+				return errors.Wrap(err, "stmt Save")
+			}
+			bMeta, _ := json.Marshal(f.MetaData)
+			_, err = stmt.Exec(
+				f.ID,
+				string(bMeta),
+			)
+			if err != nil {
+				return errors.Wrap(err, "exec Save")
+			}
+			return nil
+		}()
+		if err != nil {
+			return
+		}
 	}
 
 	err = tx.Commit()
@@ -230,9 +261,10 @@ func (fs *Database) Find(text string) (files []Page, err error) {
 	defer fs.Unlock()
 
 	files, err = fs.getAllFromPreparedQuery(`
-		SELECT id,snippet(fts,'<b>','</b>','...',-1,-30) 
-			FROM fts
-			WHERE data MATCH ?
+		SELECT fs.id,fs.meta,snippet(fts,'<b>','</b>','...',-1,-30) 
+			FROM fs
+			INNER JOIN fts ON fs.id=fts.id
+			WHERE fts.data MATCH ?
 	`, text)
 	return
 }
@@ -257,10 +289,13 @@ func (fs *Database) getAllFromPreparedQuery(query string, args ...interface{}) (
 	files = []Page{}
 	for rows.Next() {
 		var f Page
+		var metaData string
 		err = rows.Scan(
 			&f.ID,
+			&metaData,
 			&f.Data,
 		)
+		json.Unmarshal([]byte(metaData), &f.MetaData)
 		if err != nil {
 			err = errors.Wrap(err, "get rows of file")
 			return

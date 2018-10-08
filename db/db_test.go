@@ -27,4 +27,5 @@ func TestBasic(t *testing.T) {
 	assert.Nil(t, err)
 	fmt.Println(pages)
 
+	assert.Nil(t, fs.DumpSQL())
 }
