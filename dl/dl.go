@@ -38,7 +38,7 @@ func copyMax(dst io.Writer, src io.Reader, n int64) error {
 	if err != nil {
 		// If there's less data available
 		// it will throw the error "io.EOF"
-		return err
+		return nil
 	}
 
 	// Take one more byte

@@ -1,0 +1,17 @@
+[
+    {
+        "id":"i/Maze",
+        "data":"A maze is a path or collection of paths, typically from an entrance to a goal. The word is used to refer both to branching tour puzzles through which the solver must find a route, and to simpler non-branching (\"unicursal\") patterns that lead unambiguously through a convoluted layout to a goal. (The term \"labyrinth\" is generally synonymous with \"maze\", but can also connote specifically a unicursal pattern.[1]) The pathways and walls in a maze are typically fixed, but puzzles in which the walls and paths can change during the game are also categorised as mazes or tour puzzles.",
+        "meta":{"title":"Maze intro"}
+    },
+    {
+        "id":"/Maze#Generating_mazes",
+        "data":"Maze generation is the act of designing the layout of passages and walls within a maze. There are many different approaches to generating mazes, with various maze generation algorithms for building them, either by hand or automatically by computer. ",
+        "meta":{"title":"Generating mazes"}
+    },
+    {
+        "id":"/Maze#Solving_mazes",
+        "data":"Maze solving is the act of finding a route through the maze from the start to finish. Some maze solving methods are designed to be used inside the maze by a traveler with no prior knowledge of the maze, whereas others are designed to be used by a person or computer program that can see the whole maze at once. ",
+        "meta":{"title":"Solving mazes"}
+    }
+]
