@@ -23,7 +23,7 @@ type PostSearch struct {
 }
 
 func main() {
-	port := "8185"
+	port := "8186"
 	setLogLevel("debug")
 
 	os.Mkdir("data", 0644)
@@ -116,7 +116,10 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"success": err == nil, "message": message, "pages": pages})
 	})
 	log.Infof("Running at http://0.0.0.0:" + port)
-	r.Run(":" + port)
+	err = r.Run(":" + port)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func middleWareHandler() gin.HandlerFunc {
