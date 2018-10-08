@@ -44,6 +44,9 @@ func main() {
 	r.Use(middleWareHandler(), gin.Recovery())
 
 	// Example for binding JSON ({"user": "manu", "password": "123"})
+	r.OPTIONS("/search", func(c *gin.Context) {
+		c.String(200, "OK")
+	})
 	r.POST("/search", func(c *gin.Context) {
 		searchTime := time.Now()
 		pages, err := func(c *gin.Context) (pages []db.Page, err error) {
