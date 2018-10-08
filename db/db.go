@@ -11,6 +11,7 @@ import (
 	log "github.com/cihub/seelog"
 	"github.com/pkg/errors"
 	"github.com/schollz/sqlite3dump"
+	"github.com/schollz/pagesearch/db"
 )
 
 type Database struct {

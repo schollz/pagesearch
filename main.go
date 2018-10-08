@@ -1,7 +1,9 @@
 package main
 
 import (
+	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	log "github.com/cihub/seelog"
@@ -25,15 +27,26 @@ func main() {
 
 	// Example for binding JSON ({"user": "manu", "password": "123"})
 	r.POST("/search", func(c *gin.Context) {
-		var ps PostSearch
-		if err := c.ShouldBindJSON(&ps); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		err, pages := func(c *gin.Context) (err error, pages []db.Page) {
+			var ps PostSearch
+			err = c.ShouldBindJSON(&ps)
+			if err != nil {
+				return nil, err
+			}
+			// get data URL
+			tmpfile, err := ioutil.TempFile("", "example")
+			if err != nil {
+				log.Error(err)
+			}
+			defer os.Remove(tmpfile.Name()) // clean up
+
 			return
+		}(c)
+
+		if err != nil {
+			message := err.Error()
 		}
-
-		// get data URL
-
-		c.JSON(http.StatusOK, gin.H{"status": "you are logged in"})
+		c.JSON(http.StatusOK, gin.H{"success": err == nil, "message": err.Error(), "pages": pages})
 	})
 	log.Infof("Running at http://0.0.0.0:" + port)
 	err := r.Run(":" + port)
