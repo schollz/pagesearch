@@ -77,7 +77,7 @@ func main() {
 				// check if it can be deciphered
 				err = json.Unmarshal(bJSON, &pages)
 				if err != nil {
-					err = errors.Wrap(err, "incorrect format for pages")
+					err = fmt.Errorf("incorrect format for pages")
 					return pages, err
 				}
 
@@ -103,6 +103,9 @@ func main() {
 
 			// search
 			pages, err = fs.Find(ps.SearchTerm)
+			if err != nil {
+				pages = []db.Page{}
+			}
 			return
 		}(c)
 
