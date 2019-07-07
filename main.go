@@ -23,7 +23,7 @@ type PostSearch struct {
 }
 
 func main() {
-	port := "8186"
+	port := "8006"
 	setLogLevel("debug")
 
 	os.Mkdir("data", 0644)
